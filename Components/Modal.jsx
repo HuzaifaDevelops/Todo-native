@@ -1,53 +1,54 @@
-import { Formik, Field, ErrorMessage, Form } from "formik";
-import * as Yup from "yup";
 import React, { useState } from "react";
 import {
   Alert,
   Modal,
+  Pressable,
+  SafeAreaView,
   StyleSheet,
   Text,
-  Pressable,
-  View,
-  SafeAreaView,
   TextInput,
+  View,
 } from "react-native";
 import Icon from "react-native-vector-icons/AntDesign";
+import { ErrorMessage, Field, Form, Formik } from "formik";
+import * as Yup from "yup";
 
-const CustomModal = ({
-  setShowModal,
-  showModal,
-  todo,
-  setTodo,
-  input,
-  options,
-  id,
-  data,
-}) => {
-  const [editModal, setEditModal] = useState(false);
-  const [filtered, setFiltered] = useState();
-
-  const handleFormSubmit = (values, actions) => {
-    const todosWithId = { ...values, id: todo.length + 1 };
-    // console.log(todosWithId)
-    setTodo([...todo, todosWithId]);
-    actions.resetForm();
-    setShowModal(!showModal);
-  };
-
+const CustomModal = ({ setShowModal, showModal, data, setTodo, id, todo }) => {
+  const [modalVisible, setModalVisible] = useState(false);
+  const [filtered, setFiltered] = useState([]);
   const editTodo = () => {
-    // it filters and gives that todo which user wanna edit
-    const selected = data.filter((todo) => todo.id === id);
-    setFiltered(selected);
-    // setShowModal(!showModal);
-    setEditModal(true);
+    const filter = data?.filter((item) => item.id === id);
+    setFiltered(filter);
+    setShowModal(!showModal);
+    setModalVisible(!modalVisible);
   };
   const deleteTodo = () => {
-    const filtered = data.filter((todo) => todo.id !== id);
-    console.log(filtered);
-    setTodo(filtered);
-    setShowModal(!showModal);
+    const filter = data?.filter((item) => item.id !== id);
+    setTodo(filter);
   };
 
+  function generateNanoID(size = 21) {
+    const alphabet =
+      "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+    const nanoID = [];
+    const max = Math.floor(alphabet.length);
+
+    for (let i = 0; i < size; i++) {
+      const randomIndex = Math.floor(Math.random() * max);
+      nanoID.push(alphabet[randomIndex]);
+    }
+
+    return nanoID.join("");
+  }
+
+  const handleFormSubmit = (values, actions) => {
+    const nanoID = generateNanoID();
+    const todosWithId = { ...values, id: nanoID };
+    const filter = data?.filter((item) => item.id !== id);
+    const finalTodo = [...filter, todosWithId];
+    setTodo(finalTodo);
+    actions.resetForm();
+  };
   return (
     <>
       <View style={styles.centeredView}>
@@ -57,88 +58,11 @@ const CustomModal = ({
           visible={showModal}
           onRequestClose={() => setShowModal(!showModal)}
         >
-          {input && (
-            <View style={styles.centeredView}>
-              <View style={styles.modalView}>
-                <View style={styles.modalHeader}>
-                  <h3 style={styles.modalText}>Add ToDo</h3>
-                  <Icon.Button
-                    name="close"
-                    color={"black"}
-                    backgroundColor={"transparent"}
-                    style={styles.closeBtn}
-                    onPress={() => setShowModal(!showModal)}
-                  />
-                </View>
-                <View style={styles.modalBody}>
-                  <SafeAreaView>
-                    <Formik
-                      initialValues={{
-                        title: "",
-                        desc: "",
-                      }}
-                      validationSchema={Yup.object({
-                        title: Yup.string()
-                          .min(2, "Too Short!")
-                          .max(50, "Too Long!")
-                          .required("Title is required"),
-                        desc: Yup.string()
-                          .min(2, "Too Short!")
-                          .max(50, "Too Long!")
-                          .required("Description is required"),
-                      })}
-                      onSubmit={handleFormSubmit}
-                    >
-                      {({ handleChange, handleBlur, handleSubmit, values }) => (
-                        <Form>
-                          <View style={styles.container}>
-                            <Field
-                              name="title"
-                              component={TextInput}
-                              style={styles.input}
-                              placeholder="Add title"
-                              onBlur={handleBlur("title")}
-                              value={values.title}
-                              onChangeText={handleChange("title")}
-                            />
-                            <ErrorMessage
-                              name="title"
-                              component="div"
-                              style={styles.errorMessage}
-                            />
-                          </View>
-                          <View style={styles.container}>
-                            <Field
-                              name="title"
-                              component={TextInput}
-                              style={styles.input}
-                              placeholder="Add description"
-                              onBlur={handleBlur("title")}
-                              value={values.desc}
-                              onChangeText={handleChange("desc")}
-                            />
-                            <ErrorMessage
-                              name="desc"
-                              component="div"
-                              style={styles.errorMessage}
-                            />
-                          </View>
-                          <Pressable
-                            style={[styles.button, styles.buttonClose]}
-                            onPress={handleSubmit}
-                          >
-                            <Text style={styles.textStyle}>Submit</Text>
-                          </Pressable>
-                        </Form>
-                      )}
-                    </Formik>
-                  </SafeAreaView>
-                </View>
-              </View>
-            </View>
-          )}
+          {/* {input && (
+            
+          )} */}
 
-          {options && (
+          {showModal && (
             <View style={styles.centeredView}>
               <Modal
                 animationType="slide"
@@ -185,18 +109,30 @@ const CustomModal = ({
               </Modal>
             </View>
           )}
+        </Modal>
+      </View>
 
-          {/* {editModal && (
+      {modalVisible && (
+        <View style={styles.centeredView}>
+          <Modal
+            animationType="slide"
+            transparent={true}
+            visible={modalVisible}
+            onRequestClose={() => {
+              Alert.alert("Modal has been closed.");
+              setModalVisible(!modalVisible);
+            }}
+          >
             <View style={styles.centeredView}>
-              <View style={styles.modalView}>
+              <View style={[styles.modalView, { padding: 20 }]}>
                 <View style={styles.modalHeader}>
-                  <h3 style={styles.modalText}>Edit ToDo</h3>
+                  <Text style={styles.modalText}>Edit ToDo</Text>
                   <Icon.Button
                     name="close"
                     color={"black"}
                     backgroundColor={"transparent"}
                     style={styles.closeBtn}
-                    onPress={() => setShowModal(!showModal)}
+                    onPress={() => setModalVisible(!modalVisible)}
                   />
                 </View>
                 <View style={styles.modalBody}>
@@ -219,8 +155,7 @@ const CustomModal = ({
                       onSubmit={handleFormSubmit}
                     >
                       {({ handleChange, handleBlur, handleSubmit, values }) => (
-                        <Form>
-                          {console.log(filtered)}
+                       <>
                           <View style={styles.container}>
                             <Field
                               name="title"
@@ -228,7 +163,7 @@ const CustomModal = ({
                               style={styles.input}
                               placeholder="Add title"
                               onBlur={handleBlur("title")}
-                              value={filtered[0].title}
+                              value={values.title}
                               onChangeText={handleChange("title")}
                             />
                             <ErrorMessage
@@ -244,7 +179,7 @@ const CustomModal = ({
                               style={styles.input}
                               placeholder="Add description"
                               onBlur={handleBlur("title")}
-                              value={filtered[0].desc}
+                              value={values.desc}
                               onChangeText={handleChange("desc")}
                             />
                             <ErrorMessage
@@ -259,16 +194,16 @@ const CustomModal = ({
                           >
                             <Text style={styles.textStyle}>Submit</Text>
                           </Pressable>
-                        </Form>
+                          </>
                       )}
                     </Formik>
                   </SafeAreaView>
                 </View>
               </View>
             </View>
-          )} */}
-        </Modal>
-      </View>
+          </Modal>
+        </View>
+      )}
     </>
   );
 };
@@ -286,14 +221,7 @@ const styles = StyleSheet.create({
     margin: 20,
     backgroundColor: "white",
     borderRadius: 20,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
+    boxShadow: "1px 7px 44px -18px rgba(0,0,0,0.75)",
     padding: 10,
   },
   button: {
@@ -326,6 +254,7 @@ const styles = StyleSheet.create({
   modalHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
+    marginVertical: 20,
   },
 
   modalBody: {
@@ -333,8 +262,9 @@ const styles = StyleSheet.create({
   },
 
   modalText: {
-    fontFamily: "arial",
-    marginBottom: 15,
+    // fontFamily: "arial",
+    fontSize: 18,
+    fontWeight: 600,
   },
 
   container: {

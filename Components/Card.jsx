@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { View, Text, StyleSheet } from "react-native";
-import Icon from "react-native-vector-icons/Entypo";
+import { Entypo } from "@expo/vector-icons";
 import CustomModal from "./Modal";
-const Card = ({ title, description, id, allData, setTodo }) => {
+const Card = ({ title, description, id, allData, setTodo, todo }) => {
   const [showModal, setShowModal] = useState(false);
 
   const openModal = () => {
@@ -13,7 +13,7 @@ const Card = ({ title, description, id, allData, setTodo }) => {
       <View style={styles.card} key={id}>
         <View style={styles.cardHeader}>
           <Text style={styles.heading}>{title}</Text>
-          <Icon.Button
+          <Entypo
             name="dots-three-vertical"
             size={15}
             color={"black"}
@@ -24,19 +24,19 @@ const Card = ({ title, description, id, allData, setTodo }) => {
         </View>
         <Text style={styles.description}>{description}</Text>
       </View>
-
       <CustomModal
         showModal={showModal}
         setShowModal={setShowModal}
-        input={false}
-        options={true}
         id={id}
         data={allData}
         setTodo={setTodo}
+        todo={todo}
       />
     </>
   );
 };
+
+export default Card;
 
 const styles = StyleSheet.create({
   card: {
@@ -44,14 +44,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 15,
     margin: 10,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
+    boxShadow: " 0px 0px 2px 0px rgba(0,0,0,0.75)",
   },
 
   cardHeader: {
@@ -65,7 +58,7 @@ const styles = StyleSheet.create({
   },
 
   heading: {
-    fontFamily: "arial",
+    // fontFamily: "arial",
     fontSize: 18,
     fontWeight: "bold",
     marginBottom: 10,
@@ -75,5 +68,3 @@ const styles = StyleSheet.create({
     color: "#555",
   },
 });
-
-export default Card;
