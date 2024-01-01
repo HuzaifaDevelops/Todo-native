@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, Pressable } from "react-native";
 import { Entypo } from "@expo/vector-icons";
 import CustomModal from "./Modal";
-const Card = ({ title, description, id, allData, setTodo, todo }) => {
+const Card = ({ title, description, id, setTodo, todo }) => {
   const [showModal, setShowModal] = useState(false);
 
   const openModal = () => {
@@ -10,7 +10,7 @@ const Card = ({ title, description, id, allData, setTodo, todo }) => {
   };
   return (
     <>
-      <View style={styles.card} key={id}>
+      <Pressable style={styles.card} onLongPress={openModal}>
         <View style={styles.cardHeader}>
           <Text style={styles.heading}>{title}</Text>
           <Entypo
@@ -23,12 +23,11 @@ const Card = ({ title, description, id, allData, setTodo, todo }) => {
           />
         </View>
         <Text style={styles.description}>{description}</Text>
-      </View>
+      </Pressable>
       <CustomModal
         showModal={showModal}
-        setShowModal={setShowModal}
+        setShowModal={setShowModal} 
         id={id}
-        data={allData}
         setTodo={setTodo}
         todo={todo}
       />
@@ -42,19 +41,20 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: "#fff",
     borderRadius: 10,
-    padding: 15,
-    margin: 10,
-    boxShadow: " 0px 0px 2px 0px rgba(0,0,0,0.75)",
+    padding: 5,
+    marginTop: 10,
+    borderColor: "#b2b4b8",
+    borderWidth: 2,
   },
 
   cardHeader: {
-    flex: 1,
     flexDirection: "row",
     justifyContent: "space-between",
   },
 
   options: {
-    padding: 0,
+    // paddingHorizontal: 7,
+    padding: 7,
   },
 
   heading: {
